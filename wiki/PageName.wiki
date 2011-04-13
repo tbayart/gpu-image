@@ -6,9 +6,9 @@
 The basic method uses graphics textures to hold images, and effects to process these images.  The images seen to the programmer as ImageTex objects, which wrap the textures and provide image processing operations such as arithmetic operators (+, `*`, etc), filters (convolutions, unsharp mask, median, percentile, etc).  The programmer need not be aware of the GPU implementation of the operations.
 
 The project may be used in three ways.
-# As an image viewer, with very fast and high quality zoom/pan.
-# For simple image processing pipeline experimentation.  A very basic programmer oriented interface is provided for this.
-# As a set of classes for implementing image processing within a DotNet framework.
+  # As an image viewer, with very fast and high quality zoom/pan.
+  # For simple image processing pipeline experimentation.  A very basic programmer oriented interface is provided for this.
+  # As a set of classes for implementing image processing within a DotNet framework.
 
 
 == Details ==
