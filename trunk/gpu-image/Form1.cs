@@ -128,7 +128,7 @@ namespace Images {
         /// <summary>if true, use Vector4 for renderTargets</summary> 
         private CheckBox useVector4 = new CheckBox();
 
-        ToolTip toolTip = new ToolTip();
+        ToolTip toolTip = new ToolTip();  // just one, used for several controls
 
         /// <summary>make a new Form1</summary> 
         public Form1(string[] args) {
