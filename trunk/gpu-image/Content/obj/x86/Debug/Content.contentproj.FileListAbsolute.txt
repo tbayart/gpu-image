@@ -1,3 +1,0 @@
-D:\QuickHouse\Dev\iteration7\src\WindowsGame1\Content\obj\x86\Debug\ResolveAssemblyReference.cache
-D:\QuickHouse\Dev\iteration7\src\Image\Content\obj\x86\Debug\ResolveAssemblyReference.cache
-D:\GoogleCode\gpu-image\Content\obj\x86\Debug\ResolveAssemblyReference.cache
