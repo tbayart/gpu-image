@@ -6,10 +6,10 @@
       <TargetPlatform>Windows</TargetPlatform>
       <BuildConfiguration>Debug</BuildConfiguration>
       <CompressContent>false</CompressContent>
-      <RootDirectory>D:\QuickHouse\Dev\iteration7\src\Image\Content\</RootDirectory>
-      <LoggerRootDirectory>D:\QuickHouse\Dev\iteration7\src\Image\</LoggerRootDirectory>
-      <IntermediateDirectory>D:\QuickHouse\Dev\iteration7\src\Image\Content\obj\x86\Debug\</IntermediateDirectory>
-      <OutputDirectory>D:\QuickHouse\Dev\iteration7\src\Image\bin\x86\Debug\Content\</OutputDirectory>
+      <RootDirectory>D:\GoogleCode\gpu-image\Content\</RootDirectory>
+      <LoggerRootDirectory>D:\GoogleCode\gpu-image\</LoggerRootDirectory>
+      <IntermediateDirectory>D:\GoogleCode\gpu-image\Content\obj\x86\Debug\</IntermediateDirectory>
+      <OutputDirectory>D:\GoogleCode\gpu-image\bin\x86\Debug\Content\</OutputDirectory>
     </Settings>
     <Assemblies>
       <Assembly>
