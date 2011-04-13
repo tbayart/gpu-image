@@ -1,0 +1,52 @@
+# write program here;
+# ctrl key or double click to execute
+trapx 0.004 0.040 0.03 0
+#med
+#FConvF 0.1 150
+
+rsize 0.05 0
+Percentile_10_0 0.1
+
+rsize 0.05 0
+Percentile_10_0 0.1
+
+#rsize 0.05 0
+#Percentile_10_0 0.2
+
+rsize 400 0
+Direct
+
+!
+trapx 0.004 0.040 0.03 0
+rsize 0.3 0.3
+Percentile_2 0.01
+rsize 0.3 0.3
+Percentile_2 0.01
+
+
+!
+trap 0.004 0.040 0.03 0
+
+!
+
+trapx 0.004 0.040 0.03 0
+
+#med
+size 25 0
+changes 0.1 4
+
+size 1 0
+conv 12 0 25 1 ...
+
+lt .001
+#irsize 1 25
+#conv 0 12 25 1 ...
+#irsize 1 25
+#conv 0 12 25 1 ...
+
+#size 1 10
+#conv 0 2 5 1 1 1 1 1
+
+size 3000 4000
+direct
+!

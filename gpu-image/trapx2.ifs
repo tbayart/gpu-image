@@ -1,0 +1,7 @@
+# write program here;
+# ctrl key or double click to execute
+trap 0.1 0.8 0.2 0.4
+vp 712 534
+!
+trapx 0.1 0.8 0.2 0.4
+vp 712 534

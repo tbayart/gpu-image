@@ -1,0 +1,8 @@
+D:\QuickHouse\Dev\iteration7\src\Image\bin\x86\Debug\Image.exe
+D:\QuickHouse\Dev\iteration7\src\Image\bin\x86\Debug\Image.pdb
+D:\QuickHouse\Dev\iteration7\src\Image\obj\x86\Debug\ResolveAssemblyReference.cache
+D:\QuickHouse\Dev\iteration7\src\Image\obj\x86\Debug\Microsoft.Xna.Framework.RuntimeProfile.txt
+D:\QuickHouse\Dev\iteration7\src\Image\obj\x86\Debug\Image.csproj.GenerateResource.Cache
+D:\QuickHouse\Dev\iteration7\src\Image\obj\x86\Debug\Image.exe
+D:\QuickHouse\Dev\iteration7\src\Image\obj\x86\Debug\Image.pdb
+D:\QuickHouse\Dev\iteration7\src\Image\obj\x86\Debug\Images.Form1.resources
