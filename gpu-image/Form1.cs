@@ -137,8 +137,8 @@ namespace Images {
 
             string cd = Utils.GetCommandLineA(); //  Directory.GetCurrentDirectory();
             cd = cd.Split('\"')[1];
-            string where = cd.Split(new string[] { @"\src\" }, StringSplitOptions.None)[0];
-            Directory.SetCurrentDirectory(where + @"\src\Image\");
+            string where = cd.Split(new string[] { @"\gpu-image\" }, StringSplitOptions.None)[0];
+            Directory.SetCurrentDirectory(where + @"\gpu-image\");
 
             if (args.Length > 0) fileName = args[0];
 
