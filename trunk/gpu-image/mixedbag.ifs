@@ -1,0 +1,66 @@
+# write program here;
+# ctrl key or double click to execute
+#
+# This will process the program
+# between the ! lines above/below
+
+!
+# 3x3 median built in to image.fx
+Median
+
+!
+# 3x3 median (extends 1 each size)
+# dynamic but same as Median
+Median_1
+!
+
+!
+# GreyMed converts to grey
+# using median of the rgb values
+GreyMed
+
+!
+# GreyMin converts to grey
+# using min of the rgb values
+GreyMin
+
+!
+# GreyMax converts to grey
+# using max of the rgb values
+GreyMax
+
+!
+
+Percentile_2 0.518
+!
+GreyMed
+Percentile_1 0.300
+Percentile_1 0.300
+
+
+!
+Percentile_1 0.730
+!
+# 5x5 median (extends 2 each side)
+Median_2
+!
+# 5x5 percentile
+# percentile 0.5 ==  median
+Percentile_2 0.5
+!
+Percentile_1 0.260
+Percentile_1 0.370
+
+!
+Percentile_2 0.294
+Percentile_2 0.370
+
+!
+GreyMin
+!
+GreyMax
+!
+GreyMed
+!
+
+!
