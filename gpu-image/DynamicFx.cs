@@ -86,7 +86,7 @@ technique Standard { pass P0 { SRGBWriteEnable = 1; VertexShader = compile vs_3_
     for (int i = 0; i < (2*X+1)*(2*Y+1); i++) {
         float4 rgb = tex2D(is, Input.TexPos + float2(x,y)*stepImageXy);
         float l = max(rgb.r, max(rgb.g, rgb.b));
-        float k = parms[x+X+3] * parms[y+Y+3];
+        float k = parms[abs(x)+3] * parms[abs(y)+3];
 		suml += k * l;
 		sumk += k;
 		x++;

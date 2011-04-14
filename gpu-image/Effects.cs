@@ -236,7 +236,7 @@ for(int i=0; i<100;i++) { DE("q", "float p1=parms[1]; float p2=parms[2];col=(ii0
         /// generate a dynamic technique for the given name (TODO: make more generic)
         /// name may be xxx_N_M for an NxM filter, and also xxx_N for an NxN filter
         /// Unsharp_ 1..5
-        /// Percentile_ 0..2
+        /// Percentile_ 0..2  (requires a single percentile parameter)
         /// Median_ 0..2
         /// </summary>
         /// <param name="name"></param>
