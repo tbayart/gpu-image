@@ -26,6 +26,9 @@ namespace Images {
     /// <summary>
     /// The ImageTex class is the main class for holding reference to an image stored as a texture.
     /// This class may be used for writing standard C# programs on images, or as support for the interactive display code.
+    /// 
+    /// The image held as texture is no longer valid after DeviceLost.  
+    /// TODO: add a check for attempt to use images in this way?
     /// </summary>
     public class ImageTex {
         public Texture2D texture;  // holds the image in device form

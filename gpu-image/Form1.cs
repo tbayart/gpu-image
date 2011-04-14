@@ -142,9 +142,7 @@ namespace Images {
 
             if (args.Length > 0) fileName = args[0];
 
-            InitializeRenderFramework(image);
             programBox.Text = "# write program here;\r\n# ctrl key or double click to execute";
-            Effects.LoadContentRuntime();
 
             continuous.Text = "continuous";
             toolTip.SetToolTip(continuous, "enable to execute program every keystroke, otherwise use dblClick or ctrl key");
@@ -209,14 +207,16 @@ namespace Images {
             programBox.ContextMenu = new ContextMenu();
 
             showtechnique(lanc);
-            SetLanc();
-            LoadImage();
-            Width = Screen.PrimaryScreen.WorkingArea.Width;  // *2 / 3;
-            Form1_Resize();  // force initial layout of image etc
 
             AllowDrop = true;
             DragDrop += DragDropCode;
             DragEnter += DragEnterCode;
+
+            InitializeRenderFramework(image);
+            // SetLanc();  // now part of InitializeRenderFramework
+            LoadImage();
+            Width = Screen.PrimaryScreen.WorkingArea.Width;  // *2 / 3;
+            Form1_Resize();  // force initial layout of image etc
 
             current = this;
 
@@ -251,6 +251,16 @@ namespace Images {
 
         Viewport xvp; // extra viewport for test
 
+        private ImageTex RunProgram() {
+            try {
+                return RunProgramX();
+            } catch (DeviceLostException e) {
+                Console.WriteLine("attempt to recover after deviceLost during RunProgram()");
+                RecoverDevice();
+                return null;
+            }
+        }
+
         /// <summary>
         /// very basic parsing and execution of a program
         /// comma separated 'lines'
@@ -261,7 +271,7 @@ namespace Images {
         /// ! as a start line character at any point cuts execution at that point:     eg a,!b,c === a
         /// # as a start line character at any point prevents execution of that line@  eg a,#b,c === a,c
         /// </summary>
-        private ImageTex RunProgram() {
+        private ImageTex RunProgramX() {
             trapm = Matrix.Identity;  // unless otherwise set
             Viewport savevp;
             savevp = xvp = graphicsDevice.Viewport;  // unless otherwise set
@@ -481,8 +491,10 @@ namespace Images {
                     DeviceType.Hardware,
                     control.Handle,
                     pres);
+                //Console.WriteLine("new graphicsDevice " + graphicsDevice.GetHashCode());
 
                 Effects = new Effects(graphicsDevice);
+                SetLanc();  // at least make sure some displayTechnique is correct
                 resizeBackBuffer(control);  // also set antialias etc
             } catch (Exception e) {
                 MessageBox.Show("Cannot initialize RenderFramework ~ ? incompatible graphics hardware\n" +
@@ -1047,7 +1059,11 @@ namespace Images {
 
             // and display the output
             Microsoft.Xna.Framework.Rectangle r = new Microsoft.Xna.Framework.Rectangle(0, 0, graphicsDevice.Viewport.Width, graphicsDevice.Viewport.Height);
-            graphicsDevice.Present(r, r, displayControl.Handle);
+            try {
+                graphicsDevice.Present(r, r, displayControl.Handle);
+            } catch (DeviceLostException) {
+                RecoverDevice();
+            }
             this.Text = fileName + ":  " + (showOriginal ? "original" : "processed") + " - ShaderImage .. scale=" + _pixscale + iimage.fileInfo;
 
             graphicsDevice.Viewport = save;
@@ -1060,8 +1076,22 @@ namespace Images {
         }
 
 
+        ///<summary>recover device after DeviceLostException</summary>
+        private void RecoverDevice() {
+            Console.WriteLine("device lost noticed");
+            Effects.Kill();  // just in case
+            Effects = null;  // should be rest soon, but just in case
+            displayTechnique = null;
+            fileImage = null;
+            processedImage = null;
+            ImageTex.i1 = ImageTex.i2 = ImageTex.i3 = ImageTex.i4 = null;
+            pres = null;  // so initialize works
+            InitializeRenderFramework(image);
+            LoadImage();
+        }
 
     }  // Form1
+
 
     public class InterruptedException : Exception { }
 
