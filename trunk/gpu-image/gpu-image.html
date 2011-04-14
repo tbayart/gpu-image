@@ -95,9 +95,13 @@ automatically adjusts the parameters for zoom-in, zoom out, and normal
 display sizes.</span></p>
 <h4>Warning on timeout</h4>
 <p>The XNA screen mechanism can lose the graphics device under
-certain circumstances (for example after sleep). &nbsp;<span style="font-style: italic;">gpu-image cannot currently
-recover from this, though it should be possible to save any useful data
-(such as unsaved programs) before having to restart.</span></p>
+certain circumstances (for example after sleep). &nbsp;<span style="font-style: italic;">gpu-image
+cannot currently
+completely recover from this. &nbsp;It should be ok in normal use, but
+you may need to rerun the program or reset the display options to see
+exactly the correct image. &nbsp;If you are coding C#&nbsp;image
+processing applications, all derived images will be lost and
+cannot&nbsp;be recovered.</span></p>
 <h3>simple image processing</h3>
 <p>gpu-image provides a small set of image processing filters
 that can be used on the image. &nbsp;These are all applied

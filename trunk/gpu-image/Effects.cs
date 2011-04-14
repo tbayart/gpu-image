@@ -29,8 +29,12 @@ namespace Images {
         /// <summary>two prepared render targets</summary> 
         RenderTarget2D xtarget, xtarget1;
 
-        /// <summary>construct an Effects object for a given GraphicsDevice</summary>
-        public Effects(GraphicsDevice graphicsDevice) { this.graphicsDevice = graphicsDevice; }
+        /// <summary>construct an Effects object for a given GraphicsDevice, and load the inital effect file</summary>
+        public Effects(GraphicsDevice graphicsDevice) { 
+            this.graphicsDevice = graphicsDevice;
+            LoadContentRuntime();
+            SetVertices();
+        }
 
         /// <summary>initialize the services and get the effect compiled and ready</summary>
         public void LoadContentRuntime() {
@@ -402,12 +406,14 @@ for(int i=0; i<100;i++) { DE("q", "float p1=parms[1]; float p2=parms[2];col=(ii0
 
         /// <summary>load image from disc, set texture and isize as side effect</summary> 
         internal ImageTex LoadImage(String fileName) {
+            //Console.WriteLine("LoadImage using graphicsDevice " + graphicsDevice.GetHashCode());
             ImageTex fileImage = new ImageTex(fileName, this);
             return fileImage;
         }
 
         /// <summary>run the effect.  This allows for multiple passes, though we only use single pass techniques.</summary> 
         internal void RunEffect(Effect effect) {
+            //Console.WriteLine("RunEffect using graphicsDevice " + graphicsDevice.GetHashCode());
             effect.Begin();
             foreach (EffectPass pass in effect.CurrentTechnique.Passes) {
                 pass.Begin();
@@ -434,6 +440,8 @@ for(int i=0; i<100;i++) { DE("q", "float p1=parms[1]; float p2=parms[2];col=(ii0
         /// but larger may give more parallelism depending how graphics pipeline works.
         /// </summary> 
         internal void SetVertices() {
+            //Console.WriteLine("SetVertices using graphicsDevice " + graphicsDevice.GetHashCode());
+
             // prepare a pair of triangles to fill -1..1 square
             float dd = 2f / k;
             Vector3[] mpos = new Vector3[6 * k * k];
@@ -458,6 +466,15 @@ for(int i=0; i<100;i++) { DE("q", "float p1=parms[1]; float p2=parms[2];col=(ii0
 
             graphicsDevice.VertexDeclaration = new VertexDeclaration(graphicsDevice, VertexElements);
             graphicsDevice.Vertices[0].SetSource(vertexBuffer, 0, bufferFormatElementSize);
+        }
+
+        /// <summary>
+        /// <summary>Invalidate everything to prevent accidental reuse</summary>
+        /// </summary>
+        internal void Kill() {
+            graphicsDevice = null;
+            mainEffect = null;
+            dynamicEffects = null;
         }
     }
 
