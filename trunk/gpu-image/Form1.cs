@@ -173,7 +173,7 @@ namespace Images {
             Button("Median", (s, e) => { settechnique(s, "Median"); }, "Use median filter for the display output stage");
             Button("Direct", (s, e) => { settechnique(s, "Direct"); }, "Use direct (noop) filter for the display output stage");
             Button("Bilinear", (s, e) => { settechnique(s, "Bilinear"); }, "Use bilinear filter for the display output stage");
-            ToolStripButton lanc = Button("Lanc", (s, e) => { showtechnique(s); SetLanc(); }, "Use Lancxos filter for the display output stage");
+            ToolStripButton lanc = Button("Lanc", (s, e) => { showtechnique(s); SetLanc(); }, "Use Lanczos filter for the display output stage");
             ;
             Label("a"); TextBox("2", "LancA", "number of harmonics for Lanczos filter (A=2)");
             Label("w"); TextBox("2", "LancW", "width of Lanczos filter (W=2)");
@@ -287,6 +287,7 @@ namespace Images {
                     if (name[0] == '!') break;
                     if (name[0] == '#') continue;
                     if (name == "ref") { Effects.LoadContentRuntime(); continue; }
+                    if (name == "<") name = "lt";
                     //if (line.Contains('=')) {
                     //    String[] cparms = line.Split(new char[] { ' ' }, 2, StringSplitOptions.RemoveEmptyEntries);
                     //    Effects.CreateEffectDirect(cparms[0], cparms[1]);
@@ -301,8 +302,10 @@ namespace Images {
 
                     float[] parms = new float[100];
                     if (sparms.Length > 1) switch (sparms[1]) {
+                            // NOTE: parameter 0 gives the number of parameters, not generally sed but always expected
                             case "sharp": parms = new float[] { 9, 0, -1, 0, -1, 5, -1, 0, -1, 0 }; break;
                             case "smooth": parms = new float[] { 9, 1f / 9, 1f / 9, 1f / 9, 1f / 9, 1f / 9, 1f / 9, 1f / 9, 1f / 9, 1f / 9 }; break;
+                            case "unsharp": parms = new float[] { 11, 1, 0.1f, 1, 0.6f, 0.36f, 0.2f, 0.1f, 0, 0, 0, 0 }; break;
                             default:
                                 parms[0] = sparms.Length;
                                 for (int i = 1; i < sparms.Length; i++) {
@@ -999,7 +1002,7 @@ namespace Images {
             if (effect == null) { Form1.Beep(new Exception("null effect")); return; }
             programBox.ForeColor = System.Drawing.Color.Black;
 
-            if (graphicsDevice.Viewport.Width != displayControl.ClientSize.Width) { Form1.BREAK(); }  // debug
+            if (graphicsDevice.Viewport.Width != displayControl.ClientSize.Width && !fullscreen) { Form1.BREAK(); }  // debug
 
             Viewport save = graphicsDevice.Viewport;
             if (small) graphicsDevice.Viewport = SmallVP;

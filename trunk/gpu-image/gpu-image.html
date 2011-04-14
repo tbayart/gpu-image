@@ -1,0 +1,217 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head>
+<meta content="text/html; charset=ISO-8859-1" http-equiv="content-type"><title>gpu-image</title>
+
+</head>
+<body>
+<h1>gpu-image</h1>
+<p>gpu-image
+provides a set of classes for simple image processing using a Graphics
+Processing Unit (GPU) within C#/XNA. The GPU programs are written as
+effects files; some of which are dynamically generated.</p>
+<p>The
+project may be used in one of three ways.</p>
+<ol>
+<li>
+as a
+simple image viewer with very fast good quality pan/zoom
+</li>
+<li>
+to
+experiment with simple image processing pipelines
+</li>
+<li>
+to
+write C# (or other DotNet) image processing
+applications.</li>
+</ol>
+<p>gpu-image does not provide a smooth general purpose user
+interface, but
+does provide effective interface for the limited uses I have had for it.</p>
+<p>There are many features (functional and interface) known to be
+missing from gpu-image. &nbsp;Some of these are raised<span style="font-style: italic;"> in italics</span> in the
+discussion.</p>
+<h3>image viewer</h3>
+<h4>loading an image</h4>
+<p>An image may be loaded into gpu-image&nbsp;by&nbsp;</p>
+<ol>
+<li>Using the 'Load Image' menu item.</li>
+<li>Drag-dropping an image (eg from Explorer or Picasa),.</li>
+<li>Specifying the image name on the command line.
+&nbsp;This can be used to associate&nbsp;gpu-image with
+Explorer 'Open' or 'Open With' for selected filetypes.</li>
+<li>Using the left/right cursor keys to navigate through the
+images in a given directory.</li>
+</ol>
+<p>gpu-image does not display images correctly if they are
+greater than 8192 pixels in either direction. &nbsp;This is
+because&nbsp;texture size limit in XNA.</p>
+<h4>Manipulating a displayed image</h4>
+<p>Once the image is loaded, it may be zoomed by using the mouse
+wheel, or by the keys '<span style="font-weight: bold;">0</span>'
+(fit to screen) or '<span style="font-weight: bold;">1</span>',
+... '<span style="font-weight: bold;">9</span>'
+(scale to a factor of 1 to 9). &nbsp; <span style="font-style: italic;">Zooming is currently around the
+centre of the displayed part of the image, it may be changed to zoom
+around the mouse cursor position.</span></p>
+<p>The image may be panned by dragging with the left mouse button.</p>
+<h4>Controlling the display method</h4>
+<p><span style="font-style: italic;">(Advanced)</span>
+gpu-image uses different image processing to display the
+image, especially when zoomed&nbsp;in or out. &nbsp;It may be
+controlled by the menu items.&nbsp;<span style="font-style: italic;"></span></p>
+<ol>
+<li><span style="font-weight: bold;">Reset</span>:
+resets all the display options.</li>
+<li><span style="font-weight: bold;">Median</span>:
+uses a median filter to display the output.</li>
+<li><span style="font-weight: bold;">Bilinear:</span>
+uses bilinear interpolation to display the output.</li>
+<li><span style="font-weight: bold;">Lanczos:</span>
+uses a convolution of a Lanczos filter and square filter to display the
+output.&nbsp;</li>
+<ol>
+<li>The options on
+the Lanczos filter may be changed with&nbsp;<span style="font-weight: bold;">a</span> (number of
+harmonics) and <span style="font-weight: bold;">w</span>
+(width of filter).</li>
+<li>The square filter may be controlled with&nbsp;<span style="font-weight: bold;">sqw</span> (width of
+square).</li>
+<li>These filters are computed as 1d filters swept into 2d.
+&nbsp;The sweep uses a superegg shape (x**p + y**p = r**p), where p
+is controlled by <span style="font-weight: bold;">circp</span>.</li>
+</ol>
+</ol>
+<p><span style="font-style: italic;">This was the original
+experimental use of the system. &nbsp;The UI for this is likely to
+be simplified later. &nbsp;Also, the processing applies even where
+the image is displayed 1 to1. &nbsp;We may change to a system that
+automatically adjusts the parameters for zoom-in, zoom out, and normal
+display sizes.</span></p><h4>Warning on timeout</h4><p>The XNA screen mechanism can lose the graphics device under certain circumstances (for example after sleep). &nbsp;<span style="font-style: italic;">gpu-image
+cannot currently recover from this, though it should be possible to
+save any useful data (such as unsaved programs) before having to
+restart.</span></p>
+<h3>simple image processing</h3>
+<p>gpu-image provides a small set of image processing filters
+that can be used on the image. &nbsp;These are all applied
+non-destructively. &nbsp;<span style="font-style: italic;">There
+is no current mechanism to save the image resulting from the processing.</span></p>
+<h4>the program</h4>
+<p>gpu-image image processing can be controlled by a program
+written in the text area to the left of the screen. &nbsp;This
+provides a very basic programmer interface, but one that is quite
+effective at experimentation. &nbsp;<span style="font-style: italic;">A more end-user friendly
+alternative may be provided at some point.</span></p>
+<p>The program is line based. &nbsp;Leading spaces are
+ignored. &nbsp;</p>
+<ol>
+<li>Lines beginning with a '<span style="font-weight: bold;">#</span>'
+are treated as comments and ignored. &nbsp;</li>
+<li>Other lines represent a single filter to be applied, or
+some special processing option.</li>
+<li>Lines beginning '<span style="font-weight: bold;">!</span>'
+divide the program into sections (see below).</li>
+</ol>
+A new program can be loaded with the '<span style="font-weight: bold;">LoadProg</span>' menu item,
+and the program saved with <span style="font-weight: bold;">SaveProg</span>.
+&nbsp;<span style="font-style: italic;">The naming,
+saving and overwriting rules for SaveProg are non-standard and should
+be changed at some time.</span>
+<h4>filter line and&nbsp;parameters</h4>
+<p>A filter line is written with the filter name, optionally
+followed by parameters. &nbsp;The filter name is not case
+sensitive. &nbsp;It may be abbreviated to just leading characters
+(<span style="font-style: italic;">but this may take an arbitrary choice if ambiguous</span>). &nbsp;The actual filter names used are displayed in the title bar (if room).</p>
+<p>Parameters are blank separated. &nbsp;Any excess
+parameters are ignored without warning. If too few parameters are
+given, the remainder will have the value 0. &nbsp; The last parameter
+may be repeated using '<span style="font-weight: bold;">...</span>',
+so for example the following are equivalent: </p>
+<pre>conv 1 1 9 1 1 1 1 1 1 1 1 1<br>conv 1 1 9 1 ...</pre><p>You can play with&nbsp;parameters by
+entering a new value as text and hitting the ctrl key to run.
+&nbsp;Alternatively, select the parameter to be changed and use right
+button drag. &nbsp;This will give realtime control of the parameter. &nbsp;<span style="font-style: italic;">More user friendly and&nbsp;conventional realtime manipulation may be provided&nbsp;later.</span><br></p><h4>supported filters and program options</h4>
+<p>gpu-image currently provides the following filters</p>
+<ol>
+<li><span style="font-weight: bold;">GreyMin</span>:
+convert to grey using the min of the rgb components ~ no parameters</li>
+<li><span style="font-weight: bold;">GreyMax</span>:
+convert to grey using the max of the rgb components ~ no parameters</li>
+<li><span style="font-weight: bold;">GreyMed</span>:
+convert to grey using the median of the rgb components ~ no parameters</li>
+<li><span style="font-weight: bold;">Median33</span>:&nbsp;
+fixed 3x3 median: computes a separate median in each of RGB (and A) ~
+no parameters</li>
+<li><span style="font-weight: bold;">LMedian3</span>:
+computes a fixed 1d 3 point median.&nbsp; parms 1 and 2 are x-step
+and y-step (in input pixels)</li>
+<li><span style="font-weight: bold;">Avg3</span>:
+performs 3x3 convolution (average).&nbsp; parms 1..9 are
+convolution parameters.</li>
+<li><span style="font-weight: bold;">Conv</span>:
+general convolution.&nbsp; parms 1 and 2 are width and height
+(2*width+1 x 2*height+1), parm3 is divisor, then (2*width+1 x
+2*height+1) convolution parameters. &nbsp;Thus the following are almost equivalent:<br><pre>conv 1 1 9&nbsp;<br>avg3 0.111 ...</pre></li>
+<li><span style="font-weight: bold;">Changes</span>:
+[<span style="font-style: italic;">advanced</span>] counts changes along a scanline.&nbsp; parms[1] is value change
+threshold, parms[2] is divisor. Fixed 128 pixel spread.</li>
+<li><span style="font-weight: bold;">Direct</span>:
+[<span style="font-style: italic;">mainly debug</span>] does a direct conversion from input to output; using closest point
+lookup</li>
+<li><span style="font-weight: bold;">lt</span>:
+compares to threshold, can also be written '<span style="font-weight: bold;">&lt;</span>'. &nbsp;Note, the threshold is in the range 0..1.</li>
+<li><span style="font-weight: bold;">Bilinear</span>:
+does a direct conversion from input to output; using standard bilinear
+lookup</li>
+<li><span style="font-weight: bold;">Col</span>:
+set colour to given four parms: mainly for performance comparison. &nbsp;(Note, all in range 0..1, NOT the range 0..255).</li><li><span style="font-weight: bold;">Median_x_y</span>:
+provides a median filter that goes x, y pixels from centre in each
+direction (so a value of 1 gives an overall width of 3: also see
+warning below). &nbsp;For a square filter, this may be written as <span style="font-weight: bold;">Median_x</span>. &nbsp;Thus Median33, Median_1 and Median_1_1 are equivalent, though Median33 may be more efficient as it is builtin.</li><li><span style="font-weight: bold;">Percentile_x_y</span>: provides a percentile filter, with x,y used as for median_x_y. &nbsp;This also takes a single percentile parameter in the range 0..1. &nbsp;Percentile_x_y 0.5 is equivalent to Median_x_y.</li><li><span style="font-weight: bold;">Unsharp_x_y</span>: provides an unsharp mask,
+with x,y used as for median_x_y. &nbsp; &nbsp;Unsharp requires extra
+parameters; for convenience a default set 'unsharp' may be used (eg
+'unsharp_2_2 unsharp')</li><ol><li><span style="font-weight: bold;">strength</span> gives the strength to use (typical values around 0.5 to 1)</li><li><span style="font-weight: bold;">threshold</span> gives a threshold difference below which no change is made (typical values 0.01 to 0.1)</li><li><span style="font-weight: bold;">convolution parameters</span> give the 1d convolution values used to generate the smooth version. &nbsp;n+1 values must be given, where n=max(x,y). &nbsp;The first value is the centre value, typically fading away to the edges. &nbsp;The convolution parameters do not need to be scaled, the kernel will automatically be normalized. &nbsp;The
+overall convolution is generated by the product of vertical and
+horizontal kernels. &nbsp;Where x and y are not equal, only the centre
+part of the convolution will be used for the smaller dimension.</li></ol></ol><h4>filters only available in full programming mode</h4><p>The
+following filters involve more than one image. &nbsp;These are not
+available for simple image processing, only for&nbsp;C# (or other
+DotNet) programs using the image classes (see below).</p><ol>
+<li><span style="font-weight: bold;">Plus</span>:
+adds two images</li>
+<li><span style="font-weight: bold;">Minus</span>:
+subtracts image 2 from image 1</li>
+<li><span style="font-weight: bold;">Times</span>:
+multiplies two images</li>
+<li><span style="font-weight: bold;">Divide</span>:
+divides image1 by image2</li>
+<li><span style="font-weight: bold;">Min</span>:
+takes minimum of two images (in each of rgb)</li>
+<li><span style="font-weight: bold;">Max</span>:
+takes maximum of two images (in each of rgb)</li>
+<li><span style="font-weight: bold;">Mad</span>:
+multiply and add.&nbsp; Takes four images and parms 1..4 are four
+scalar multipliers</li>
+<li><span style="font-weight: bold;">TR2</span>:
+multiply and add two images, with different input transforms (mainly
+for performance comparison)</li>
+<li><span style="font-weight: bold;"></span><br>
+</li>
+</ol>
+<h4>program sections</h4>
+<p>The program is divided into sections by lines beginning '<span style="font-weight: bold;">!</span>'. &nbsp;Only
+one section of the program is applied at any point in time.
+&nbsp;This allows you to write and easily compare different image
+processing pipelines.</p>
+<p>A section may be applied by</p>
+<ol>
+<li>Double-clicking in the section with the mouse.</li>
+<li>Hitting the <span style="font-weight: bold;">ctrl</span>
+key while the text cursor is in the section. &nbsp;<span style="font-style: italic;">alt-Enter might be a more
+conventional way to handle this.</span></li>
+<li>Using the <span style="font-weight: bold;">PageUp</span>
+and <span style="font-weight: bold;">PageDown</span>
+keys. &nbsp;These&nbsp;move the cursor up and down through the
+sections, and applies the selected one automatically.</li>
+</ol><p>A useful technique is to include empty sections that do not apply any filters. &nbsp;It is thus easy to switch between different filters and the unfiltered original. &nbsp;There is also a '<span style="font-weight: bold;">show original</span>' menu item for this that toggles original/program; the tile line indicates 'original' or 'processed'.</p><h3>Programming using Image classes</h3>to follow.
+</body></html>
