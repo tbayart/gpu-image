@@ -349,19 +349,19 @@ namespace Images {
                         nimage.nextOpNew = NextOp.ALT;
                         continue;
                     }
-                    if (name == "size") {  // control output size
+                    if (name == "size") {  // control output size of the next filter in the pipeline
                         outputSizeX = (int)parms[1];
                         outputSizeY = (int)parms[2];
                         continue;
                     }
-                    if (name == "rsize") {  // control relative output size
+                    if (name == "rsize") {  // control relative output size of the next filter in the pipeline
                         outputSizeX = (int)(parms[1] * nimage.Width);
                         if (outputSizeX == 0 && parms[1] != 0) outputSizeX = 1;
                         outputSizeY = (int)(parms[2] * nimage.Height);
                         if (outputSizeY == 0 && parms[2] != 0) outputSizeY = 1;
                         continue;
                     }
-                    if (name == "irsize") {  // control relative output size using inverse
+                    if (name == "irsize") {  // control relative output size using inverse of the next filter in the pipeline
                         outputSizeX = parms[1] == 0 ? 0 : (int)(nimage.Width / parms[1]);
                         if (outputSizeX == 0 && parms[1] != 0) outputSizeX = 1;
                         outputSizeY = parms[2] == 0 ? 0 : (int)(nimage.Height / parms[2]);
