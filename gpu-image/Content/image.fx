@@ -71,6 +71,11 @@ sampler isbil = sampler_state {
     mipfilter = LINEAR; minfilter = LINEAR; magfilter = LINEAR;
     AddressU = CLAMP; AddressV = CLAMP;
 };
+sampler isbil2 = sampler_state {
+    SRGBTexture = 1; Texture = <image2>;
+    mipfilter = LINEAR; minfilter = LINEAR; magfilter = LINEAR;
+    AddressU = CLAMP; AddressV = CLAMP;
+};
 sampler isparmbil = sampler_state {
     SRGBTexture = 0; Texture = <imageparm>;
     mipfilter = LINEAR; minfilter = LINEAR; magfilter = LINEAR;
@@ -316,7 +321,7 @@ PS_OUTPUT Direct_PS(VS_OUTPUT_Image Input)
 technique Direct {  pass P0  { SRGBWriteEnable = 1; VertexShader = compile vs_3_0 Image_VS();
         PixelShader = compile ps_3_0 Direct_PS(); } }
 
-//// Tonemap: tonemaps the main image, using imageparm as curve.  Only the r component and centre row of imageparm are used
+//// Tonemap: tonemaps the main image, using image2 as curve.  Only the r component and centre row of image2 are used
 PS_OUTPUT Tonemap_PS(VS_OUTPUT_Image Input)
 {
     PS_OUTPUT col;
@@ -324,7 +329,7 @@ PS_OUTPUT Tonemap_PS(VS_OUTPUT_Image Input)
     clip(1-Input.TexPos);
     float4 v = tex2D(is, Input.TexPos);
     float MAX = max(max(v.r, v.g), v.b);
-    float newmax = tex2D(isparmbil, float2(MAX,0.5)).r;  
+    float newmax = tex2D(isbil2, float2(MAX,0.5)).r;  
     col.pixClr = v * (newmax/MAX); 
     col.pixClr.a = 1; 
     return col;

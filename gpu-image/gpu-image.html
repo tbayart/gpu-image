@@ -122,6 +122,8 @@ are treated as comments and ignored. &nbsp;</li>
 some special processing option.</li>
 <li>Lines beginning '<span style="font-weight: bold;">!</span>'
 divide the program into sections (see below).</li>
+<li>Lines ending '<span style="font-weight: bold;">_</span>'
+are treated as continuation lines.</li>
 </ol>
 A new program can be loaded with the '<span style="font-weight: bold;">LoadProg</span>' menu item,
 and the program saved with <span style="font-weight: bold;">SaveProg</span>.
@@ -135,11 +137,13 @@ be changed at some time.<br>
 &nbsp;Most lines of the program represent such a filter step, but
 some modify details of how the pipeline is going to work (for example,
 controlling the size of the image output from a step).</p>
-<p>The last step of the pipeline is generally to display the image. This
+<p>The last step of the pipeline is generally to display the
+image. This
 display step will usually involve final processing&nbsp;such as a
 Lanczos filter (see image viewer above). &nbsp;<span style="font-style: italic;">An explicit display
 step can be included in the pipeline, that will prevent use of the
-default view step.</span> &nbsp;The display step is not used when the image is save by <span style="font-weight: bold;">SaveImage</span>.</p>
+default view step.</span> &nbsp;The display step is not used
+when the image is save by <span style="font-weight: bold;">SaveImage</span>.</p>
 <h4>filter line and&nbsp;parameters</h4>
 <p>A filter line is written with&nbsp;</p>
 <ol>
@@ -162,6 +166,11 @@ parameter
 may be repeated using '<span style="font-weight: bold;">...</span>',
 so for example the following are equivalent: </p>
 <pre>conv 1 1 9 1 1 1 1 1 1 1 1 1<br>conv 1 1 9 1 ...</pre>
+<p>Parameters can use a <span style="font-style: italic;">name=value</span>
+syntax. &nbsp;There must not be any space around the '=' (otherwise
+it would be parsed as a separate parameter). &nbsp;<span style="font-style: italic;">The name is for comment and
+program readablity only. &nbsp;Parameters remain defined by order.
+Using a given name does not give the parameter that meaning.</span></p>
 <p>You can play with&nbsp;parameters by entering a new value
 as text and hitting the ctrl key to run. &nbsp;Alternatively,
 select the parameter to be changed and use right button drag.
@@ -252,89 +261,137 @@ matrix. &nbsp;It uses the current display method to implement the
 interpolation implicit in a deskew. &nbsp;<span style="font-style: italic;">(It is
 intended to add more sensible user interface features to
 drag&nbsp;directly on the image to control this)</span></li>
-</ol>
-<h4>other features of the processing pipeline</h4>
-<p>This discusses the other pipeline control features that may
-occur as a line of the program.</p>
+<li><span style="font-weight: bold;">linearmap</span>:
+(<span style="font-style: italic;">noop, debug only) </span>applies
+a linear curve to the&nbsp;intensity (applied preserving hue and
+saturation)</li>
+<li><span style="font-weight: bold;">gammamap</span>:
+applies a gamma curve to the&nbsp;intensity (applied preserving hue
+and saturation). &nbsp;Single parameter is gamma.</li>
+<li><span style="font-weight: bold;">curvesmap</span>:
+applies a compound map to the&nbsp;intensity (applied preserving
+hue and saturation), with mapping and parameters as below.</li>
 <ol>
-<li><span style="font-weight: bold;">vp</span>:
+<li><span style="font-weight: bold;">black</span>
+and <span style="font-weight: bold;">white</span>
+define the points in the input range to be mapped to 0 and 1 (no-op
+values are&nbsp;0 and 1)</li>
+<li><span style="font-weight: bold;">contrast</span>
+applies a contrast value (to give an s-curve) (no-op value is 1)</li>
+<li><span style="font-weight: bold;">gamma</span>
+applies a gamma curve (no-op value is 1)</li>
+<li><span style="font-weight: bold;">bout</span>
+and <span style="font-weight: bold;">wout</span>
+define the final output range into which intensities are mapped</li>
+</ol>
+Thus we can write <b>curvesmap 0 1 1 1 0 1</b> for a
+no-op, or <b>curvesmap
+black=0 white=1 contrast=1.5 gamma=1 bout=0 wout=1</b> for a
+contrast of 1.5.
+<i>Remember, the parameter names in this syntax are for comment
+only.
+It is not the same to code <b>curvesmap contrast=1.5</b>.
+</i>
+<p>If the DrawFilter option has been chosen, the
+mapping function will be displayed.
+<i>This is output only, there is currently no graphical GUI for
+curve editing.</i>
+</p>
+</ol>
+<h4><i><i>other features of the processing pipeline</i></i></h4>
+<p><i><i>This discusses the other pipeline control
+features
+that may
+occur as a line of the program.</i></i></p>
+<ol>
+<li><span style="font-weight: bold;"><i><i>vp</i></i></span><i><i>:
 <span style="font-style: italic;">(mainly debug)</span>
 viewport on the screen that will display the result.
-&nbsp;Parameters are width, height, xoffset and yoffset.</li>
-<li><span style="font-weight: bold;">clear</span>:
+&nbsp;Parameters are </i><i>xoffset, yoffset, </i><i>width,
+height.</i></i></li>
+<li><span style="font-weight: bold;"><i><i>clear</i></i></span><i><i>:
 <span style="font-style: italic;">(mainly debug)</span>
 clears the screen to given colour.
-&nbsp;Parameters are r,g,b,a (0..1 range)</li>
-<li><span style="font-weight: bold;">size</span>:
+&nbsp;Parameters are r,g,b,a (0..1 range)</i></i></li>
+<li><span style="font-weight: bold;"><i><i>size</i></i></span><i><i>:
 controls size of the output image. Parameters are width and height
-(pixels), with 0 used to leave as before.</li>
-<li><span style="font-weight: bold;">rsize</span>:
+(pixels), with 0 used to leave as before.</i></i></li>
+<li><span style="font-weight: bold;"><i><i>rsize</i></i></span><i><i>:
 controls size of the output image. Parameters are relative width and
-height (1 for no change), with 0 used to leave as before.</li>
-<li><span style="font-weight: bold;">irsize</span>:
+height (1 for no change), with 0 used to leave as before.</i></i></li>
+<li><span style="font-weight: bold;"><i><i>irsize</i></i></span><i><i>:
 controls size of the output image. Parameters are relative using
 inverse values width and height (1 for no change), with 0 used to leave
-as before.</li>
-<li><span style="font-weight: bold;">trap</span>:
+as before.</i></i></li>
+<li><span style="font-weight: bold;"><i><i>trap</i></i></span><i><i>:
 provides trapezoid transform to the image at the final display stage.
 This takes four parameters that control the skew
 matrix. &nbsp;<span style="font-style: italic;">(It is
 intended to add more sensible user interface features to
 drag&nbsp;directly on the image to control this).&nbsp;</span>
 &nbsp;Note that this applies at the final display stage, even if
-coded in the middle of the program.</li>
-<li><span style="font-weight: bold;">lanc</span>:
+coded in the middle of the program.</i></i></li>
+<li><span style="font-weight: bold;"><i><i>lanc</i></i></span><i><i>:
 controls the lanczos filter parameters used at the final stage. This
 has global effect on the parameters until they are reset from the UI or
-by another program.</li>
+by another program.</i></i></li>
 </ol>
-<h4>filters only available in full programming mode</h4>
-<p>The following filters involve more than one image.
+<h4><i><i>filters only available in full programming
+mode</i></i></h4>
+<p><i><i>The following filters involve more than one
+image.
 &nbsp;These are not available for simple image processing, only
 for&nbsp;C# (or other DotNet) programs using the image classes (see
-below).</p>
+below).</i></i></p>
 <ol>
-<li><span style="font-weight: bold;">Plus</span>:
-adds two images</li>
-<li><span style="font-weight: bold;">Minus</span>:
-subtracts image 2 from image 1</li>
-<li><span style="font-weight: bold;">Times</span>:
-multiplies two images</li>
-<li><span style="font-weight: bold;">Divide</span>:
-divides image1 by image2</li>
-<li><span style="font-weight: bold;">Min</span>:
-takes minimum of two images (in each of rgb)</li>
-<li><span style="font-weight: bold;">Max</span>:
-takes maximum of two images (in each of rgb)</li>
-<li><span style="font-weight: bold;">Mad</span>:
+<li><span style="font-weight: bold;"><i><i>Plus</i></i></span><i><i>:
+adds two images</i></i></li>
+<li><span style="font-weight: bold;"><i><i>Minus</i></i></span><i><i>:
+subtracts image 2 from image 1</i></i></li>
+<li><span style="font-weight: bold;"><i><i>Times</i></i></span><i><i>:
+multiplies two images</i></i></li>
+<li><span style="font-weight: bold;"><i><i>Divide</i></i></span><i><i>:
+divides image1 by image2</i></i></li>
+<li><span style="font-weight: bold;"><i><i>Min</i></i></span><i><i>:
+takes minimum of two images (in each of rgb)</i></i></li>
+<li><span style="font-weight: bold;"><i><i>Max</i></i></span><i><i>:
+takes maximum of two images (in each of rgb)</i></i></li>
+<li><span style="font-weight: bold;"><i><i>Mad</i></i></span><i><i>:
 multiply and add.&nbsp; Takes four images and parms 1..4 are four
-scalar multipliers</li>
-<li><span style="font-weight: bold;">TR2</span>:
+scalar multipliers</i></i></li>
+<li><span style="font-weight: bold;"><i><i>TR2</i></i></span><i><i>:
 multiply and add two images, with different input transforms (mainly
-for performance comparison)</li>
+for performance comparison)</i></i></li>
 </ol>
-<h4>program sections</h4>
-<p>The program is divided into sections by lines beginning '<span style="font-weight: bold;">!</span>'. &nbsp;Only
+<h4><i><i>program sections</i></i></h4>
+<p><i><i>The program is divided into sections by
+lines
+beginning '<span style="font-weight: bold;">!</span>'.
+&nbsp;Only
 one section of the program is applied at any point in time.
 &nbsp;This allows you to write and easily compare different image
-processing pipelines.</p>
-<p>A section may be applied by</p>
+processing pipelines.</i></i></p>
+<p><i><i>A section may be applied by</i></i></p>
 <ol>
-<li>Double-clicking in the section with the mouse.</li>
-<li>Hitting the <span style="font-weight: bold;">ctrl</span>
+<li><i><i>Double-clicking in the section with the
+mouse.</i></i></li>
+<li><i><i>Hitting the <span style="font-weight: bold;">ctrl</span>
 key while the text cursor is in the section. &nbsp;<span style="font-style: italic;">alt-Enter might be a more
-conventional way to handle this.</span></li>
-<li>Using the <span style="font-weight: bold;">PageUp</span>
+conventional way to handle this.</span></i></i></li>
+<li><i><i>Using the <span style="font-weight: bold;">PageUp</span>
 and <span style="font-weight: bold;">PageDown</span>
 keys. &nbsp;These&nbsp;move the cursor up and down through the
-sections, and applies the selected one automatically.</li>
+sections, and applies the selected one automatically.</i></i></li>
 </ol>
-<p>A useful technique is to include empty sections that do not
+<p><i><i>A useful technique is to include empty
+sections that
+do not
 apply any filters. &nbsp;It is thus easy to switch between
 different filters and the unfiltered original. &nbsp;There is also
 a '<span style="font-weight: bold;">show original</span>'
 menu item for this that toggles original/program; the tile line
-indicates 'original' or 'processed'.</p>
-<h3>Programming using Image classes</h3>
-to follow.
+indicates 'original' or 'processed'.</i></i></p>
+<h3><i><i>Programming using Image classes</i></i></h3>
+<i><i>to follow.
+</i></i>
 </body></html>
