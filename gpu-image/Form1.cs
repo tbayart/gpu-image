@@ -139,9 +139,11 @@ namespace Images {
             //Convolutions = new Convolutions(this);
 
             string cd = Utils.GetCommandLineA(); //  Directory.GetCurrentDirectory();
-            cd = cd.Split('\"')[1];
-            string where = cd.Split(new string[] { @"\gpu-image\" }, StringSplitOptions.None)[0];
-            Directory.SetCurrentDirectory(where + @"\gpu-image\");
+            if (cd.Contains('\"')) {
+                cd = cd.Split('\"')[1];
+                string where = cd.Split(new string[] { @"\gpu-image\" }, StringSplitOptions.None)[0];
+                Directory.SetCurrentDirectory(where + @"\gpu-image\");
+            }
 
             if (args.Length > 0) fileName = args[0];
 
