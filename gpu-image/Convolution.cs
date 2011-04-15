@@ -13,7 +13,7 @@ using System.IO;
 
 namespace Images {
 
-    /// <summary>class to hold a Lanczos 2d convolution</summary> 
+    /// <summary>class to hold a Lanczos 2d convolution, convolved with a square one</summary> 
     public class Lanczos : Conv2D {
          public Lanczos(Form1 form1, int a, double LancW, double SQWidth, int K, Effects effects) : base(effects) {
             //toggle = !toggle; if (toggle) return MakeLanczosOld(a, K);
@@ -22,8 +22,8 @@ namespace Images {
             int N = (int)Math.Round(Math.Pow(2, s));  // actual size of texture
             float LSQWidth = (float)(Math.Max(0.001f, SQWidth)); // K * 8; //  K * 4;
 
-            Lanc1D lanc = new Lanc1D(a, K * 20);
-            lanc.SetRange((float)LancW);
+            Lanc1D lanc = new Lanc1D(a, K * 20, (float)LancW);
+            //lanc.SetRange((float)LancW);
             SQ1D sq = new SQ1D(LSQWidth);
             Conv1D lancsq = lanc * sq;
             SetTexture(effects, 64, lancsq);
@@ -92,7 +92,7 @@ namespace Images {
             return rv;
         }
 
-        // -1..1 range for x in K2
+        // -xwidth/2..xwidth/2 range for x in K2
         float P(float i, float K2) {
             float p = ((i + 0.5f) * 2 / K2 - 1) * xwidth / 2;  // TODO: allow for non-centred
             return p;
@@ -108,10 +108,10 @@ namespace Images {
 
     /// <summary>class to hold a 1d convolution, with main data held in an array, and also extra metadata</summary> 
     public class Conv1D {
-        public float[] v;    // real data
-        public int K;        // width in array terms (length -1)
-        public float xlo;   // value of x represented by v[0]
-        public float xhi;  // value of x represented by v[K]
+        public float[] v;     // real data
+        public int K;         // width in array terms (length -1)
+        public float xlo;     // value of x represented by v[0]
+        public float xhi;     // value of x represented by v[K]
         public float xstep;   // difference of value of x between v[n] and v[n+1]
         public float xwidth;  // range of values of x
 
@@ -120,22 +120,15 @@ namespace Images {
         public Conv1D(float[] a, float pxlo, float pxhi) {
             this.v = a;
             K = a.Length - 1;
-            SetRange(pxlo, pxhi);
-        }
-        public Conv1D(int N, float xrange) : this(new float[N], -xrange, xrange) { }
-        public Conv1D(int N, float pxlo, float pxhi) : this(new float[N], pxlo, pxhi) { }
-
-        public int Length { get { return v.Length; } }
-        // retrospectively set range.
-        // should not generally be used except by constructor,
-        // but sometimes useful to save definition of lots of constructors
-        public void SetRange(float pxlo, float pxhi) {
             xlo = pxlo;
             xhi = pxhi;
             xwidth = xhi - xlo;
             xstep = xwidth / K;
         }
-        public void SetRange(float r) { SetRange(-r, r); }
+        public Conv1D(int N, float xrange) : this(new float[N], -xrange, xrange) { }
+        public Conv1D(int N, float pxlo, float pxhi) : this(new float[N], pxlo, pxhi) { }
+
+        public int Length { get { return v.Length; } }
 
 
         /// <summary>convolve two 1d convolutions</summary> 
@@ -181,8 +174,8 @@ namespace Images {
         /// </summary>
         /// <param name="a"></param>
         /// <param name="N"></param>
-        public Lanc1D(int a, int N)
-            : base(N, a) {
+        public Lanc1D(int a, int N, float xrange)
+            : base(N, xrange) {
             float[] rv = v;
 
             float pi = MathHelper.Pi;

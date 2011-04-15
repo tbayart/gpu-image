@@ -165,6 +165,7 @@ namespace Images {
             Sep();
 
             Button("LoadImage", openImage_Click, "Load an new current image");
+            Button("SaveImage", saveImage_Click, "Save current processed image");
             Button("ReloadEffects", (s, e) => { Effects.LoadContentRuntime(); RunProgram(); }, "Reload all the effects");
             Sep();
 
@@ -652,6 +653,10 @@ namespace Images {
                 fileName = fd.FileName;
                 LoadImage();
             }
+        }
+
+        private void saveImage_Click(object sender, EventArgs e) {
+            processedImage.Save();
         }
 
 

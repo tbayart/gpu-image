@@ -95,18 +95,18 @@ automatically adjusts the parameters for zoom-in, zoom out, and normal
 display sizes.</span></p>
 <h4>Warning on timeout</h4>
 <p>The XNA screen mechanism can lose the graphics device under
-certain circumstances (for example after sleep). &nbsp;<span style="font-style: italic;">gpu-image
-cannot currently
-completely recover from this. &nbsp;It should be ok in normal use, but
-you may need to rerun the program or reset the display options to see
-exactly the correct image. &nbsp;If you are coding C#&nbsp;image
-processing applications, all derived images will be lost and
-cannot&nbsp;be recovered.</span></p>
+certain circumstances (for example after sleep). &nbsp;<span style="font-style: italic;">gpu-image cannot currently
+completely recover from this. &nbsp;It should be ok in normal use,
+but you may need to rerun the program or reset the display options to
+see exactly the correct image. &nbsp;If you are coding
+C#&nbsp;image processing applications, all derived images will be
+lost and cannot&nbsp;be recovered.</span></p>
 <h3>simple image processing</h3>
 <p>gpu-image provides a small set of image processing filters
 that can be used on the image. &nbsp;These are all applied
-non-destructively. &nbsp;<span style="font-style: italic;">There
-is no current mechanism to save the image resulting from the processing.</span></p>
+non-destructively. &nbsp;The current processed image may be saved
+using the&nbsp;<span style="font-weight: bold;">SaveImage</span>
+menu button.</p>
 <h4>the program</h4>
 <p>gpu-image image processing can be controlled by a program
 written in the text area to the left of the screen. &nbsp;This
@@ -135,20 +135,26 @@ be changed at some time.<br>
 &nbsp;Most lines of the program represent such a filter step, but
 some modify details of how the pipeline is going to work (for example,
 controlling the size of the image output from a step).</p>
-<p>The last step of the pipeline is to display the image <span style="font-style: italic;">(as mentioned before, it is not
-currently possible to save the result).</span> &nbsp;This
+<p>The last step of the pipeline is generally to display the image. This
 display step will usually involve final processing&nbsp;such as a
-Lanczos filter (see image viewer above). &nbsp;An explicit display
+Lanczos filter (see image viewer above). &nbsp;<span style="font-style: italic;">An explicit display
 step can be included in the pipeline, that will prevent use of the
-default view step.</p>
+default view step.</span> &nbsp;The display step is not used when the image is save by <span style="font-weight: bold;">SaveImage</span>.</p>
 <h4>filter line and&nbsp;parameters</h4>
-<p>A filter line is written with&nbsp;</p><ol><li>optional repeat count. &nbsp;It is often more effective or cheaper to run narrow filters several times than to run a wide filter.
-&nbsp;Large values (say 50) may signficantly slow the system, depending
-on graphics hardware,&nbsp; image size and the filter used, &nbsp;Very large values certainly will.</li><li>the filter name.&nbsp; The filter name is not case
+<p>A filter line is written with&nbsp;</p>
+<ol>
+<li>optional repeat count. &nbsp;It is often more effective
+or cheaper to run narrow filters several times than to run a wide
+filter. &nbsp;Large values (say 50) may signficantly slow the
+system, depending on graphics hardware,&nbsp; image size and the
+filter used, &nbsp;Very large values certainly will.</li>
+<li>the filter name.&nbsp; The filter name is not case
 sensitive. &nbsp;It may be abbreviated to just leading characters
 (<span style="font-style: italic;">but this may take an
 arbitrary choice if ambiguous</span>). &nbsp;The actual
-filter names used are displayed in the title bar (if room).</li><li>optional parameters.</li></ol>
+filter names used are displayed in the title bar (if room).</li>
+<li>optional parameters.</li>
+</ol>
 <p>Parameters are blank separated. &nbsp;Any excess
 parameters are ignored without warning. If too few parameters are
 given, the remainder will have the value 0. &nbsp; The last
@@ -181,8 +187,8 @@ and y-step (in input pixels)</li>
 <li><span style="font-weight: bold;">Avg3</span>:
 performs 3x3 convolution (average).&nbsp; parms 1..9 are
 convolution parameters. &nbsp;(Special prepackaged parameters are
-'smooth' and 'sharp'. &nbsp;For example '8 avg smooth' will perform 8
-steps of standard smoothing.</li>
+'smooth' and 'sharp'. &nbsp;For example '8 avg smooth' will perform
+8 steps of standard smoothing.</li>
 <li><span style="font-weight: bold;">Conv</span>:
 general convolution.&nbsp; parms 1 and 2 are width and height
 (2*width+1 x 2*height+1), parm3 is divisor, then (2*width+1 x
@@ -210,7 +216,8 @@ set colour to given four parms: mainly for performance comparison.
 <li><span style="font-weight: bold;">Median_x_y</span>:
 provides a median filter that goes x, y pixels from centre in each
 direction (so a value of 1 gives an overall width of 3: also see
-warning below). &nbsp;For a square filter, this may be written as <span style="font-weight: bold;">Median_x</span>. &nbsp;Thus
+warning below). &nbsp;For a square filter, this may be written as <span style="font-weight: bold;">Median_x</span>.
+&nbsp;Thus
 Median33, Median_1 and Median_1_1 are equivalent, though Median33 may
 be more efficient as it is builtin.</li>
 <li><span style="font-weight: bold;">Percentile_x_y</span>:
@@ -229,29 +236,57 @@ gives a threshold difference below which no change is made (typical
 values 0.01 to 0.1)</li>
 <li><span style="font-weight: bold;">convolution
 parameters</span> give the 1d convolution values used to generate
-the smooth version. &nbsp;n+1 values must be given, where n=max(x,y).
+the smooth version. &nbsp;n+1 values must be given, where
+n=max(x,y).
 &nbsp;The first value is the centre value, typically fading away to
 the edges. &nbsp;The convolution parameters do not need to be
 scaled, the kernel will automatically be normalized. &nbsp;The
 overall convolution is generated by the product of vertical and
 horizontal kernels. &nbsp;Where x and y are not equal, only the
-centre part of the convolution will be used for the smaller dimension.</li></ol><li><span style="font-weight: bold;">trapx</span>:
+centre part of the convolution will be used for the smaller dimension.</li>
+</ol>
+<li><span style="font-weight: bold;">trapx</span>:
 provides trapezoid transform that can be used to
 deskew an image. This takes four parameters that control the skew
-matrix. &nbsp;It uses the current display method to implement the interpolation implicit in a deskew. &nbsp;<span style="font-style: italic;">(It is
+matrix. &nbsp;It uses the current display method to implement the
+interpolation implicit in a deskew. &nbsp;<span style="font-style: italic;">(It is
 intended to add more sensible user interface features to
 drag&nbsp;directly on the image to control this)</span></li>
 </ol>
 <h4>other features of the processing pipeline</h4>
 <p>This discusses the other pipeline control features that may
 occur as a line of the program.</p>
-<ol><li><span style="font-weight: bold;">vp</span>: <span style="font-style: italic;">(mainly debug)</span> viewport on the screen that will display the result.
-&nbsp;Parameters are width, height, xoffset and yoffset.</li><li><span style="font-weight: bold;">clear</span>: <span style="font-style: italic;">(mainly debug)</span> clears the screen to given colour.
-&nbsp;Parameters are r,g,b,a (0..1 range)</li><li><span style="font-weight: bold;">size</span>: controls size of the output image. Parameters are width and height (pixels), with 0 used to leave as before.</li><li><span style="font-weight: bold;">rsize</span>: controls size of the output image. Parameters are relative width and height (1 for no change), with 0 used to leave as before.</li><li><span style="font-weight: bold;">irsize</span>: controls size of the output image. Parameters are relative using inverse values width and height (1 for no change), with 0 used to leave as before.</li><li><span style="font-weight: bold;">trap</span>:
-provides trapezoid transform to the image at the final display stage. This takes four parameters that control the skew
+<ol>
+<li><span style="font-weight: bold;">vp</span>:
+<span style="font-style: italic;">(mainly debug)</span>
+viewport on the screen that will display the result.
+&nbsp;Parameters are width, height, xoffset and yoffset.</li>
+<li><span style="font-weight: bold;">clear</span>:
+<span style="font-style: italic;">(mainly debug)</span>
+clears the screen to given colour.
+&nbsp;Parameters are r,g,b,a (0..1 range)</li>
+<li><span style="font-weight: bold;">size</span>:
+controls size of the output image. Parameters are width and height
+(pixels), with 0 used to leave as before.</li>
+<li><span style="font-weight: bold;">rsize</span>:
+controls size of the output image. Parameters are relative width and
+height (1 for no change), with 0 used to leave as before.</li>
+<li><span style="font-weight: bold;">irsize</span>:
+controls size of the output image. Parameters are relative using
+inverse values width and height (1 for no change), with 0 used to leave
+as before.</li>
+<li><span style="font-weight: bold;">trap</span>:
+provides trapezoid transform to the image at the final display stage.
+This takes four parameters that control the skew
 matrix. &nbsp;<span style="font-style: italic;">(It is
 intended to add more sensible user interface features to
-drag&nbsp;directly on the image to control this).&nbsp;</span> &nbsp;Note that this applies at the final display stage, even if coded in the middle of the program.</li><li><span style="font-weight: bold;">lanc</span>: controls the lanczos filter parameters used at the final stage. This has global effect on the parameters until they are reset from the UI or by another program.</li>
+drag&nbsp;directly on the image to control this).&nbsp;</span>
+&nbsp;Note that this applies at the final display stage, even if
+coded in the middle of the program.</li>
+<li><span style="font-weight: bold;">lanc</span>:
+controls the lanczos filter parameters used at the final stage. This
+has global effect on the parameters until they are reset from the UI or
+by another program.</li>
 </ol>
 <h4>filters only available in full programming mode</h4>
 <p>The following filters involve more than one image.
@@ -277,7 +312,6 @@ scalar multipliers</li>
 <li><span style="font-weight: bold;">TR2</span>:
 multiply and add two images, with different input transforms (mainly
 for performance comparison)</li>
-
 </ol>
 <h4>program sections</h4>
 <p>The program is divided into sections by lines beginning '<span style="font-weight: bold;">!</span>'. &nbsp;Only
