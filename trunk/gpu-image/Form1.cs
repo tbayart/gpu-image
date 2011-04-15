@@ -293,8 +293,11 @@ namespace Images {
             if (lines[cline].Length > 0 && lines[cline][0] == '!') { Beep("! line selected"); return nimage; }
             while (cline != 0 && (lines[cline-1].Length == 0 || lines[cline-1][0] != '!')) cline--;  // count up to start of section
 
+            string xline = "";  // to allow for continuations
             for (int il=cline; il<lines.Length; il++) {
-                string line = lines[il];
+                string line = (xline + lines[il]).Trim();
+                if (line.EndsWith("_")) { xline = line.Remove(line.Length - 1) + " "; continue; }
+                xline = "";
                 String[] sparms = line.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
                 if (sparms.Length > 0) {
                     string name = sparms[0];
@@ -330,6 +333,9 @@ namespace Images {
                                 }
                                 break;
                         }
+
+                    ImageTex[] images = new ImageTex[] { nimage };  // input images to next stage, unless overridden
+
                     if (name == "trap") {  // distort using output matrix
                         trapm = Matrix.Identity;
                         trapm.M12 = parms[1];
@@ -338,12 +344,23 @@ namespace Images {
                         trapm.M24 = parms[4];
                         continue;
                     }
-                    if (name == "vp") {  // set explicit viewport
+                    if (name == "vp") {  // set explicit viewport and display this step in it
                         xvp = new Viewport();
-                        xvp.X = (int)parms[3];
-                        xvp.Y = (int)parms[4];
-                        xvp.Width = (int)parms[1];// +xvp.X;
-                        xvp.Height = (int)parms[2];// +xvp.Y;
+                        xvp.X = (int)parms[1];
+                        xvp.Y = (int)parms[2];
+                        xvp.Width = (int)parms[3];// +xvp.X;
+                        xvp.Height = (int)parms[4];// +xvp.Y;
+                        ShowImageNoClear(nimage, false);
+                        autoshow = false;
+                        continue;
+                    }
+                    if (name == "vpr") {  // set explicit viewport and display this step in it
+                        Viewport o = GraphicsDevice.Viewport;
+                        xvp = new Viewport();
+                        xvp.X = (int)parms[1]*o.Width;
+                        xvp.Y = (int)parms[2]*o.Height;
+                        xvp.Width = (int)parms[3] * o.Width;// +xvp.X;
+                        xvp.Height = (int)parms[4] * o.Height;// +xvp.Y;
                         ShowImageNoClear(nimage, false);
                         autoshow = false;
                         continue;
@@ -388,7 +405,7 @@ namespace Images {
                         trapmm.M14 = parms[2];
                         trapmm.M21 = parms[3];
                         trapmm.M24 = parms[4];
-                        nimage = Effects.Xrender(new ImageTex[] { nimage }, displayTechnique, trapmm, (int)parms[5], (int)parms[6]);
+                        nimage = Effects.Xrender(images, displayTechnique, trapmm, (int)parms[5], (int)parms[6]);
                         continue;
                     }
                     if (name == "lanc") { // set up parameters for lanc
@@ -400,12 +417,21 @@ namespace Images {
                         SetLanc();
                         continue;
                     }
+                    if (name.EndsWith("map")) { // setup for various maps
+                        ToneCurve toneCurve = new ToneCurve(Effects, name, parms); 
+                        name = "tonemap";
+                        images = new ImageTex[] { nimage, toneCurve };
+                        if (drawer != null) {
+                            drawer.DrawClear();
+                            drawer.Draw(toneCurve.toneCurve);
+                        }
+                    }
 
 
                     try {
                         if (name != "NONE")
                             for (int i = 0; i < repeat; i++)
-                                nimage = Effects.Xrender(new ImageTex[] { nimage }, name, parms, Matrix.Identity, outputSizeX, outputSizeY);
+                                nimage = Effects.Xrender(images, name, parms, Matrix.Identity, outputSizeX, outputSizeY);
                         outputSizeX = outputSizeY = 0;
 
                     } catch (Exception e) {
@@ -906,6 +932,7 @@ namespace Images {
         private void SetDraw() { if (drawer == null || drawer.IsDisposed) drawer = new Drawer(); }
         private void Draw() { if (drawer != null) drawer.Draw(); }
         internal void Draw(Conv1D c) { if (drawer != null) drawer.Draw(c); }
+        internal void Draw(float[] a) { if (drawer != null) drawer.Draw(a); }
 
         private static int lastx, lasty;
         internal static void TMouseDownCode(object sender, MouseEventArgs e) {
@@ -1066,7 +1093,8 @@ namespace Images {
             Effects.RunEffect(effect);
 
             // and display the output
-            Microsoft.Xna.Framework.Rectangle r = new Microsoft.Xna.Framework.Rectangle(0, 0, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
+            //Microsoft.Xna.Framework.Rectangle r = new Microsoft.Xna.Framework.Rectangle(0, 0, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
+            Microsoft.Xna.Framework.Rectangle r = new Microsoft.Xna.Framework.Rectangle(xvp.X, xvp.Y, xvp.Width, xvp.Height);
             try {
                 GraphicsDevice.Present(r, r, displayControl.Handle);
             } catch (DeviceLostException) {

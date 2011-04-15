@@ -88,5 +88,31 @@ namespace Images {
             // Draw2Xsection();
         }
 
+        /// <summary>Draw an array, for now assume range is 0..1</summary>
+        public void Draw(float[] a) {
+            Form df = this;
+            int mar = 5; // y margin
+            df.Show();
+            Graphics formGraphics = df.CreateGraphics();
+            // formGraphics.Clear(Conv2DColor.Green);
+            Pen myPen = new Pen(col);
+            myPen.Width *= 1;
+
+            float ymax = 1; //  a.Max(); //  1.5f;   // c.Max()
+            float ymin = 0; //  a.Min();  // c.Min()
+            float rx = (float)df.ClientSize.Width / (a.Length);
+            float ry = (df.ClientSize.Height - 2 * mar) / (ymax - ymin);
+            float my = ymax + mar / ry;
+            float ov = 0;
+            for (int i = 0; i < a.Length; i++) {
+                float v = a[i];
+                formGraphics.DrawLine(myPen, (i - 1) * rx, (my - ov) * ry, (i) * rx, (my - v) * ry);
+                ov = v;
+            }
+            myPen.Dispose();
+            formGraphics.Dispose();
+
+        }
+
     }
 }
