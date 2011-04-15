@@ -16,6 +16,39 @@ namespace Images {
 
         [DllImport("kernel32.dll", SetLastError = true)]
         public static extern string GetCommandLineA();
-
     }
+
+
+    // string extensions
+    public static class SX {
+        public static double Double(this String s) {
+            try {
+                if (s == "") return 0;
+                return double.Parse(s);
+            } catch (Exception e) {
+                Form1.Beep(e);
+                return 0;
+            }
+        }
+        public static float Float(this String s) {
+            try {
+                if (s == "") return 0;
+                return float.Parse(s);
+            } catch (Exception e) {
+                Form1.Beep(e);
+                return 0;
+            }
+        }
+        public static int Int(this String s) {
+            try {
+                if (s == "") return 0;
+                return int.Parse(s);
+            } catch (Exception e) {
+                Form1.Beep(e);
+                return 0;
+            }
+        }
+    }
+
+
 }

@@ -233,7 +233,7 @@ for(int i=0; i<100;i++) { DE("q", "float p1=parms[1]; float p2=parms[2];col=(ii0
             if (r == null) throw new Exception("Technique not found for " + name);
             r = new FullTechnique(r);  // clone so we don't corrupt others
             r.parms = parms;
-            return new FullTechnique(r);
+            return new FullTechnique(r);  // surely we don't need TWO new FullTechnique ???
         }
 
         /// <summary>
@@ -487,7 +487,7 @@ for(int i=0; i<100;i++) { DE("q", "float p1=parms[1]; float p2=parms[2];col=(ii0
         internal Effect effect;
         /// <summary>the stepping used to display with this technique (used in convolutions??? TODO)</summary> 
         internal Vector2 stepKernelXy = new Vector2(1, 1);
-        /// <summary>image parameter for the technqiue (used in convolutions)</summary> 
+        /// <summary>image parameter for the technique (used in convolutions)</summary> 
         internal Texture2D imageparm = null;
         /// <summary>other unnamed parameters used for the technique</summary> 
         internal float[] parms;
@@ -518,8 +518,6 @@ for(int i=0; i<100;i++) { DE("q", "float p1=parms[1]; float p2=parms[2];col=(ii0
         }
 
     }
-
-
 
 
 #if false  // statically loaded content

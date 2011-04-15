@@ -32,13 +32,16 @@ using System.Reflection;
 namespace Images {
     public partial class Form1 : Form {
 
-        /// <summary> graphics device use for display</summary>
-        public GraphicsDevice graphicsDevice;
+        /// <summary>graphics device use for display (used just for creation, once created held and managed by Effects</summary>
+        private GraphicsDevice GraphicsDevice { get { return Effects.graphicsDevice; } }
+
         /// <summary>the presentation information, used when the XNAControlSet/GraphicsDevice/RenderFramework is set up, and for recovery</summary>
         public PresentationParameters pres = null;
+
         /// <summary>antialias size</summary> 
         int anti = 1; // antialias size
-        /// <summary>Effects object used to control all the effects</summary>
+
+        /// <summary>Effects object used to control all the effects, and general handle to graphicsDevice etc</summary>
         internal Effects Effects;
 
         /// <summary>the technique that will be used in the final display to screen phase of display</summary>
@@ -254,7 +257,7 @@ namespace Images {
         private ImageTex RunProgram() {
             try {
                 return RunProgramX();
-            } catch (DeviceLostException e) {
+            } catch (DeviceLostException) {
                 Console.WriteLine("attempt to recover after deviceLost during RunProgram()");
                 RecoverDevice();
                 return null;
@@ -274,9 +277,9 @@ namespace Images {
         private ImageTex RunProgramX() {
             trapm = Matrix.Identity;  // unless otherwise set
             Viewport savevp;
-            savevp = xvp = graphicsDevice.Viewport;  // unless otherwise set
-            graphicsDevice.SetRenderTarget(0, null);
-            graphicsDevice.Clear(Microsoft.Xna.Framework.Graphics.Color.Gray);
+            savevp = xvp = GraphicsDevice.Viewport;  // unless otherwise set
+            GraphicsDevice.SetRenderTarget(0, null);
+            GraphicsDevice.Clear(Microsoft.Xna.Framework.Graphics.Color.Gray);
             Boolean autoshow = true;  // show at end unless explicitly handled
             int outputSizeX = 0, outputSizeY = 0;  // output size if not default
 
@@ -345,7 +348,7 @@ namespace Images {
                         continue;
                     }
                     if (name == "clear") {
-                        graphicsDevice.Clear(new Microsoft.Xna.Framework.Graphics.Color(parms[1], parms[2], parms[3], parms[4]));
+                        GraphicsDevice.Clear(new Microsoft.Xna.Framework.Graphics.Color(parms[1], parms[2], parms[3], parms[4]));
                         continue;
                     }
 
@@ -414,7 +417,7 @@ namespace Images {
             showOriginal = false;
             programBox.ForeColor = System.Drawing.Color.Green;
             if (autoshow) ShowImageNoClear(nimage, false);
-            graphicsDevice.Viewport = savevp;
+            GraphicsDevice.Viewport = savevp;
             return nimage;
         }
 
@@ -486,14 +489,14 @@ namespace Images {
                 pres.AutoDepthStencilFormat = DepthFormat.Depth24;  // ???
                 pres.EnableAutoDepthStencil = false;  // was true
 
-                graphicsDevice = new GraphicsDevice(
+                GraphicsDevice GraphicsDevice = new GraphicsDevice(
                     GraphicsAdapter.DefaultAdapter,
                     DeviceType.Hardware,
                     control.Handle,
                     pres);
-                //Console.WriteLine("new graphicsDevice " + graphicsDevice.GetHashCode());
+                //Console.WriteLine("new GraphicsDevice " + GraphicsDevice.GetHashCode());
 
-                Effects = new Effects(graphicsDevice);
+                Effects = new Effects(GraphicsDevice);
                 SetLanc();  // at least make sure some displayTechnique is correct
                 resizeBackBuffer(control);  // also set antialias etc
             } catch (Exception e) {
@@ -512,51 +515,51 @@ namespace Images {
         /// The backBuffer is allowed to grow, but not shrink.  Inefficient to change the size frequently.
         /// </summary>
         private void resizeBackBuffer(Control xcontrol) {
-            if (graphicsDevice == null) return;
-            graphicsDevice.RenderState.MultiSampleAntiAlias = (anti > 1);
+            if (GraphicsDevice == null) return;
+            GraphicsDevice.RenderState.MultiSampleAntiAlias = (anti > 1);
             if (anti > 1) {
-                graphicsDevice.RenderState.MultiSampleAntiAlias = true;
+                GraphicsDevice.RenderState.MultiSampleAntiAlias = true;
                 pres.MultiSampleType = (MultiSampleType)anti;
             } else {
-                graphicsDevice.RenderState.MultiSampleAntiAlias = false;
+                GraphicsDevice.RenderState.MultiSampleAntiAlias = false;
                 pres.MultiSampleType = MultiSampleType.None;
             }
 
-            graphicsDevice.RenderState.CullMode = CullMode.None;
-            graphicsDevice.RenderState.FillMode = FillMode.Solid; // ?? not needed?
+            GraphicsDevice.RenderState.CullMode = CullMode.None;
+            GraphicsDevice.RenderState.FillMode = FillMode.Solid; // ?? not needed?
 
             int w = xcontrol.ClientSize.Width, h = xcontrol.ClientSize.Height;
             Console.WriteLine("width " + w + ", height " + h);
 
             //// to avoid over frequent resize of the back buffer, just let it grow
             //// we had bad performance with ganged transform windows of mixed size, sjtp 15 Jan 2009
-            int mw = Math.Max(w, graphicsDevice.PresentationParameters.BackBufferWidth);
-            int mh = Math.Max(h, graphicsDevice.PresentationParameters.BackBufferHeight);
+            int mw = Math.Max(w, GraphicsDevice.PresentationParameters.BackBufferWidth);
+            int mh = Math.Max(h, GraphicsDevice.PresentationParameters.BackBufferHeight);
 
             // w = 100; h = 100;
 
             if (mw > 16 && mh > 16 &&
-                (mw != graphicsDevice.PresentationParameters.BackBufferWidth ||
-                    mh != graphicsDevice.PresentationParameters.BackBufferHeight)) {
+                (mw != GraphicsDevice.PresentationParameters.BackBufferWidth ||
+                    mh != GraphicsDevice.PresentationParameters.BackBufferHeight)) {
                 // TraceN.trace(4, "device size reset {0} {1} -> {2} {3}", pres.BackBufferWidth, pres.BackBufferHeight, mw, mh);
                 pres.BackBufferWidth = mw;
                 pres.BackBufferHeight = mh;
-                graphicsDevice.Reset(pres);
+                GraphicsDevice.Reset(pres);
                 // doing some minimum render at this point forces the first Clear() to be interpreted with
                 // correct sRBG etc correction ~ see note at end of this file
                 // RenderFramework.current.RenderLightModel(Matrix.Identity);
             }
 
-            Viewport vp = new Viewport(); vp.Height = h; vp.Width = w; vp.MinDepth = graphicsDevice.Viewport.MinDepth; vp.MaxDepth = graphicsDevice.Viewport.MaxDepth;
-            xvp = graphicsDevice.Viewport = vp;
+            Viewport vp = new Viewport(); vp.Height = h; vp.Width = w; vp.MinDepth = GraphicsDevice.Viewport.MinDepth; vp.MaxDepth = GraphicsDevice.Viewport.MaxDepth;
+            xvp = GraphicsDevice.Viewport = vp;
 
             SmallVP = new Viewport();
-            SmallVP.Height = 10; SmallVP.Width = 10; SmallVP.MinDepth = graphicsDevice.Viewport.MinDepth; SmallVP.MaxDepth = graphicsDevice.Viewport.MaxDepth;
+            SmallVP.Height = 10; SmallVP.Width = 10; SmallVP.MinDepth = GraphicsDevice.Viewport.MinDepth; SmallVP.MaxDepth = GraphicsDevice.Viewport.MaxDepth;
 
             Effects.SetVertices();  // must be redone now things have changed
 
             RunProgram();
-            //screenTarget = new RenderTarget2D(graphicsDevice, graphicsDevice.Viewport.Width, graphicsDevice.Viewport.Height, 1, graphicsDevice.DisplayMode.Format);
+            //screenTarget = new RenderTarget2D(GraphicsDevice, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height, 1, GraphicsDevice.DisplayMode.Format);
         }
 
         /// <summary>previous startTime for timing</summary> 
@@ -961,11 +964,11 @@ namespace Images {
             try {
                 if (drawer != null) {
                     drawer.DrawClear();  // in
-                    drawer.col = System.Drawing.Color.Yellow; Convolutions.MakeLanczos(this, 2, 2, 1, 8);
-                    drawer.col = System.Drawing.Color.Blue; Convolutions.MakeLanczos(this, 2, 3, 0, 8);
+                    drawer.col = System.Drawing.Color.Yellow;  new Lanczos(this, 2, 2, 1, 8, Effects);
+                    drawer.col = System.Drawing.Color.Blue; new Lanczos(this, 2, 3, 0, 8, Effects);
                     drawer.col = System.Drawing.Color.Red;
                 }
-                Conv2D l = Convolutions.MakeLanczos(this, LancA, LancW, SQWidth, 16);
+                Conv2D l = new Lanczos(this, LancA, LancW, SQWidth, 16, Effects);
                 //// keep for now, worked well at a=2, w=2.9, despite being 'wrong'
                 //int W = (int)Math.Floor(LancW);
                 //fullTechnique = CreateEffectDirect("ImConv" + LancW, DynamicFx.ImConv,
@@ -994,7 +997,7 @@ namespace Images {
         /// <param name="iimage"></param>
         /// <param name="small"></param>
         internal void ShowImage(ImageTex iimage, bool small) {
-            graphicsDevice.Clear(Microsoft.Xna.Framework.Graphics.Color.Gray);
+            GraphicsDevice.Clear(Microsoft.Xna.Framework.Graphics.Color.Gray);
             ShowImageNoClear(iimage, small);
         }
 
@@ -1014,11 +1017,11 @@ namespace Images {
             if (effect == null) { Form1.Beep(new Exception("null effect")); return; }
             programBox.ForeColor = System.Drawing.Color.Black;
 
-            if (graphicsDevice.Viewport.Width != displayControl.ClientSize.Width && !fullscreen) { Form1.BREAK(); }  // debug
+            if (GraphicsDevice.Viewport.Width != displayControl.ClientSize.Width && !fullscreen) { Form1.BREAK(); }  // debug
 
-            Viewport save = graphicsDevice.Viewport;
-            if (small) graphicsDevice.Viewport = SmallVP;
-            graphicsDevice.Viewport = xvp;
+            Viewport save = GraphicsDevice.Viewport;
+            if (small) GraphicsDevice.Viewport = SmallVP;
+            GraphicsDevice.Viewport = xvp;
 
             int ssizeX = xvp.Width;// -xvp.X;
             int ssizeY = xvp.Height;// -xvp.Y;
@@ -1053,20 +1056,20 @@ namespace Images {
             // effect.Parameters["imageparm"].SetValue(Lanczos.texture);
             // ExtraParameters(effect);
 
-            //graphicsDevice.SetRenderTarget(0, screenTarget);
+            //GraphicsDevice.SetRenderTarget(0, screenTarget);
 
             Effects.RunEffect(effect);
 
             // and display the output
-            Microsoft.Xna.Framework.Rectangle r = new Microsoft.Xna.Framework.Rectangle(0, 0, graphicsDevice.Viewport.Width, graphicsDevice.Viewport.Height);
+            Microsoft.Xna.Framework.Rectangle r = new Microsoft.Xna.Framework.Rectangle(0, 0, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
             try {
-                graphicsDevice.Present(r, r, displayControl.Handle);
+                GraphicsDevice.Present(r, r, displayControl.Handle);
             } catch (DeviceLostException) {
                 RecoverDevice();
             }
             this.Text = fileName + ":  " + (showOriginal ? "original" : "processed") + " - ShaderImage .. scale=" + _pixscale + iimage.fileInfo;
 
-            graphicsDevice.Viewport = save;
+            GraphicsDevice.Viewport = save;
 
             // housekeeping
             uint esck = Utils.GetAsyncKeyState(Utils.VK_ESCAPE);
@@ -1146,35 +1149,6 @@ namespace Images {
         private double DoubleVal { get { return Text.Double(); } }
 
     }
-
-    // string extensions
-    public static class SX {
-        public static double Double(this String s) {
-            try {
-                return double.Parse(s);
-            } catch (Exception e) {
-                Form1.Beep(e);
-                return 0;
-            }
-        }
-        public static float Float(this String s) {
-            try {
-                return float.Parse(s);
-            } catch (Exception e) {
-                Form1.Beep(e);
-                return 0;
-            }
-        }
-        public static int Int(this String s) {
-            try {
-                return int.Parse(s);
-            } catch (Exception e) {
-                Form1.Beep(e);
-                return 0;
-            }
-        }
-    }
-
 
 }
 /***
