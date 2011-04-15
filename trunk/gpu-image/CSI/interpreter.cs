@@ -15,7 +15,7 @@ public interface IConsole {
     void Write(string s);
 }
 
-public class Utils : Images.ImageTex {
+public class Utils /*: Images.ImageTex*/ {  // TODO: remember (and document) why this was a subclass
     static Type lastClass = null;
     
     public static void MInfo(object ctype, string mname) {

@@ -12,11 +12,10 @@ using System.IO;
 
 
 namespace Images {
-    /// <summary>class to manage convolution code</summary>
-    public class Convolutions {
 
-        /// <summary>set up a 3d convolution for a Lanczos filter, using the given values SQWidth etc, and draw using form1</summary>
-        static internal Conv2D MakeLanczos(Form1 form1, int a, double LancW, double SQWidth, int K) {
+    /// <summary>class to hold a Lanczos 2d convolution</summary> 
+    public class Lanczos : Conv2D {
+         public Lanczos(Form1 form1, int a, double LancW, double SQWidth, int K, Effects effects) : base(effects) {
             //toggle = !toggle; if (toggle) return MakeLanczosOld(a, K);
             if (K == 0) K = 16;  // default
             int s = (int)Math.Ceiling(Math.Log(2 * a * K, 2));
@@ -27,29 +26,84 @@ namespace Images {
             lanc.SetRange((float)LancW);
             SQ1D sq = new SQ1D(LSQWidth);
             Conv1D lancsq = lanc * sq;
-            Conv2D lanczos2d = lancsq.MakeTexture(form1.graphicsDevice, 64);
+            SetTexture(effects, 64, lancsq);
 
             form1.Draw(lancsq);
-            return lanczos2d;
         }
     }
 
     /// <summary>class to hold a 2d convolution, with main data held in a texture</summary> 
-    public class Conv2D {
-        public int K;        // width in array terms (length -1)
-        public float xlo;   // value of x represented by v[0]
-        public float xhi;  // value of x represented by v[K]
-        public float xstep;   // difference of value of x between v[n] and v[n+1]
-        public float xwidth;  // range of values of x
-        public Texture2D texture;
+    public class Conv2D : ImageTex {
+        //public float xlo;       // value of x represented by v[0]
+        //public float xhi;       // value of x represented by v[K]
+        //public float xstep;     // difference of value of x between v[n] and v[n+1]
+        public float xwidth;    // range of values of x
 
-        public Conv2D(Conv1D c1, Texture2D ptexture) {
-            xlo = c1.xlo;
-            xhi = c1.xhi;
-            xstep = c1.xstep;
-            xwidth = c1.xwidth;
-            texture = ptexture;
+        /// <summary>create an empty Conv2d; details to be provided later</summary> 
+        protected Conv2D(Effects effects)
+            : base(effects) {  // << todo: more detailed name {
         }
+
+        /// <summary>make a 2d convolution (with texture) from a 1d convolution (with array)</summary> 
+        public void SetTexture(Effects effects, int K, Conv1D c1d) {
+            xwidth = c1d.xwidth;
+            float[,] v2d = Circle2D(K, Form1.CircP, c1d); 
+            SetTexture(effects, v2d, c1d);
+        }
+
+        private void SetTexture(Effects effects, float[,] a, Conv1D c1d) {
+            int M = a.GetLength(0);
+            int N = a.GetLength(1);
+            xwidth = c1d.xwidth;
+            texture = new Texture2D(effects.graphicsDevice, N, M, 1, TextureUsage.Linear, SurfaceFormat.Single);
+            texture.SetData<float>(Flatten(a));
+            //xlo = c1d.xlo;
+            //xhi = c1d.xhi;
+            //xstep = c1d.xstep;
+        }
+
+        /// <summary>make a 1d array by flattening a 2d array</summary>
+        private static float[] Flatten(float[,] a) {
+            int M = a.GetLength(0);
+            int N = a.GetLength(1);
+            float[] r = new float[M * N];
+            int p = 0;
+            for (int i = 0; i < M; i++)
+                for (int j = 0; j < N; j++)
+                    r[p++] = a[i, j];
+            return r;
+        }
+
+        /// <summary>take a 1d conv and make it 2d by sweeping into a super-egg
+        /// note: only +ve part of input conv will be used
+        /// result will be array size K2xK2, with egg power p
+        ///</summary>
+        private float[,] Circle2D(int K2, double p, Conv1D c1d) {
+            float[,] rv = new float[K2, K2];
+            for (int i = 0; i < K2; i++) {
+                for (int j = 0; j < K2; j++) {
+                    if (i == (int)(K2 / 2) && j == (int)(K2 / 2)) { }
+                    float ii = Math.Abs(P(i, K2));
+                    float jj = Math.Abs(P(j, K2));
+                    float rr = (float)Math.Pow(Math.Pow(ii, p) + Math.Pow(jj, p), 1 / p);
+                    rv[i, j] = c1d[rr];
+                }
+            }
+            return rv;
+        }
+
+        // -1..1 range for x in K2
+        float P(float i, float K2) {
+            float p = ((i + 0.5f) * 2 / K2 - 1) * xwidth / 2;  // TODO: allow for non-centred
+            return p;
+        }
+
+        //// p in -1 .. 1, return p in 0..K
+        //float I(float p, int K) {
+        //    float i = (p + 1) * K / 2 - 0.5f;
+        //    return i;
+        //}
+
     }
 
     /// <summary>class to hold a 1d convolution, with main data held in an array, and also extra metadata</summary> 
@@ -83,17 +137,6 @@ namespace Images {
         }
         public void SetRange(float r) { SetRange(-r, r); }
 
-        // -1..1 range for x in K2
-        float P(float i, float K2) {
-            float p = ((i + 0.5f) * 2 / K2 - 1) * xwidth / 2;  // TODO: allow for non-centred
-            return p;
-        }
-
-        //// p in -1 .. 1, return p in 0..K
-        //float I(float p, int K) {
-        //    float i = (p + 1) * K / 2 - 0.5f;
-        //    return i;
-        //}
 
         /// <summary>convolve two 1d convolutions</summary> 
         public static Conv1D operator *(Conv1D ca, Conv1D cb) {
@@ -128,52 +171,6 @@ namespace Images {
                 return rv;
             }
         }
-
-        /// <summary>make a 2d convolution (with texture) from a 1d convolution (with array)</summary> 
-        public Conv2D MakeTexture(GraphicsDevice graphicsDevice, int K) {
-            float[,] v2d = Circle2D(K, Form1.CircP);
-            return MakeTexture(graphicsDevice, v2d);
-        }
-
-        private Conv2D MakeTexture(GraphicsDevice graphicsDevice, float[,] a) {
-            int M = a.GetLength(0);
-            int N = a.GetLength(1);
-            Texture2D t = new Texture2D(graphicsDevice, N, M, 1, TextureUsage.Linear, SurfaceFormat.Single);
-            t.SetData<float>(Flatten(a));
-            return new Conv2D(this, t);
-        }
-
-        /// <summary>make a 1d array by flattening a 2d array</summary>
-        private static float[] Flatten(float[,] a) {
-            int M = a.GetLength(0);
-            int N = a.GetLength(1);
-            float[] r = new float[M * N];
-            int p = 0;
-            for (int i = 0; i < M; i++)
-                for (int j = 0; j < N; j++)
-                    r[p++] = a[i, j];
-            return r;
-        }
-
-
-        /// <summary>take a 1d conv and make it 2d by sweeping into a super-egg
-        /// note: only +ve part of input conv will be used
-        /// result will be array size K2xK2, with egg power p
-        ///</summary>
-        float[,] Circle2D(int K2, double p) {
-            float[,] rv = new float[K2, K2];
-            for (int i = 0; i < K2; i++) {
-                for (int j = 0; j < K2; j++) {
-                    if (i == (int)(K2 / 2) && j == (int)(K2 / 2)) { }
-                    float ii = Math.Abs(P(i, K2));
-                    float jj = Math.Abs(P(j, K2));
-                    float rr = (float)Math.Pow(Math.Pow(ii, p) + Math.Pow(jj, p), 1 / p);
-                    rv[i, j] = this[rr];
-                }
-            }
-            return rv;
-        }
-
     }
 
     /// <summary>Lanczos 1d convolution class</summary>

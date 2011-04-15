@@ -48,13 +48,17 @@ namespace Images {
         private Effects effects;  // the Effects control associated with this ImageTex
         //public static void DE(string name, string code) { _.Effects.CreateEffectDirect(name, code); }
 
-        public ImageTex() { }  // only used for interpreter to get at statics
+        //public ImageTex() { }  // only used for interpreter to get at statics
         public ImageTex(string fid) : this(fid, Form1._.Effects) { }
+
+        /// <summary>create an ImageDef valid for the given Effects</summary> 
+        public ImageTex(Effects effects) {
+            this.effects = effects;
+        }
 
         /// <summary>load an image file as ImageDef valid for the given Effects</summary> 
         public ImageTex(string fid, Effects effects) {
             this.fid = fid;
-            this.effects = effects;
 
             try {
                 FileInfo fi = new FileInfo(fid);
@@ -175,7 +179,7 @@ namespace Images {
             p[0] = p.Length;
             p[1] = (float)strength;
             p[2] = (float)threshold;
-            ImageTex a = effects.Xrender(this, "Unsharp" + K, p);
+            ImageTex a = effects.Xrender(this, "Unsharp_" + K, p);
             return a;
         }
 

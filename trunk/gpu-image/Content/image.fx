@@ -316,6 +316,22 @@ PS_OUTPUT Direct_PS(VS_OUTPUT_Image Input)
 technique Direct {  pass P0  { SRGBWriteEnable = 1; VertexShader = compile vs_3_0 Image_VS();
         PixelShader = compile ps_3_0 Direct_PS(); } }
 
+//// Tonemap: tonemaps the main image, using imageparm as curve.  Only the r component and centre row of imageparm are used
+PS_OUTPUT Tonemap_PS(VS_OUTPUT_Image Input)
+{
+    PS_OUTPUT col;
+    clip(Input.TexPos);
+    clip(1-Input.TexPos);
+    float4 v = tex2D(is, Input.TexPos);
+    float MAX = max(max(v.r, v.g), v.b);
+    float newmax = tex2D(isparmbil, float2(MAX,0.5)).r;  
+    col.pixClr = v * (newmax/MAX); 
+    col.pixClr.a = 1; 
+    return col;
+}
+technique Tonemap {  pass P0  { SRGBWriteEnable = 1; VertexShader = compile vs_3_0 Image_VS();
+        PixelShader = compile ps_3_0 Tonemap_PS(); } }
+
 //// lt: compares to threshold
 PS_OUTPUT lt_PS(VS_OUTPUT_Image Input)
 {
