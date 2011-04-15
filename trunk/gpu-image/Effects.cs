@@ -559,7 +559,7 @@ for(int i=0; i<100;i++) { DE("q", "float p1=parms[1]; float p2=parms[2];col=(ii0
             string cd = Directory.GetCurrentDirectory();
             string where = cd.Split(new string[] { @"\src\" }, StringSplitOptions.None)[0];
             string contentSource = where + @"\src\Image\Content\" + fxfile;
-            string StartDirectory = @"D:\QuickHouse\Dev\iteration7\src\Image\bin\x86\Debug\Content\";
+            string StartDirectory = @"";  <<// TODO if reinstated
             ContentManager contentManager = new ContentManager(services, StartDirectory);
             try {
                 effect = contentManager.Load<Effect>(name);

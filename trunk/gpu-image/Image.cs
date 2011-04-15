@@ -91,6 +91,38 @@ namespace Images {
         public int Width { get { return texture.Width; } }
         public int Height { get { return texture.Height; } }
 
+        public void Save() {
+            SaveFileDialog fd = new SaveFileDialog();
+            String fids = "*.bmp;*.dds;*.dib;*.hdr;*.jpg;*.pfm;*.png";
+            fd.AddExtension = true;
+            fd.DefaultExt = ".jpg";
+            fd.Filter = "Image Files (" + fids + ")|" + fids;
+            if (fd.ShowDialog() == DialogResult.OK) {
+                Save(fd.FileName);
+            }
+        }
+
+        public void Save(String fid) {
+            String ext = Path.GetExtension(fid);
+            if (ext == null) return;
+            ImageFileFormat ff;
+            ext = ext.Substring(1).ToLower();
+            switch (ext) {
+                case "bmp": ff = ImageFileFormat.Bmp; break; //Bmp	Microsoft Windows bitmap file format.
+                case "dds": ff = ImageFileFormat.Dds; break;   //Dds	DirectDrawSurface file format.
+                case "dib": ff = ImageFileFormat.Dib; break;   //Dib	Microsoft Windows bitmap file format.
+                case "hdr": ff = ImageFileFormat.Hdr; break;   //Hdr	High dynamic-range file format.
+                case "jpg": ff = ImageFileFormat.Jpg; break;   //Jpg	Joint Photographic Experts Group (JPEG) compressed file format.
+                case "pfm": ff = ImageFileFormat.Pfm; break;   //Pfm	Portable float map file format.
+                case "png": ff = ImageFileFormat.Png; break;   //Png	Portable Network Graphics file format.
+                //case "ppm": ff = ImageFileFormat.Ppm; break;   //Ppm	Portable pixmap file format.
+                //case "tga": ff = ImageFileFormat.Tga; break;   //Tga	Truevision Targa image file format.Bmp	Microsoft Windows bitmap file format.
+                default: ff = ImageFileFormat.Jpg; break; 
+            }
+
+            texture.Save(fid, ff);
+        }
+
         /// <summary>add two images (pointwise)</summary>
         public static ImageTex operator +(ImageTex a, ImageTex b) { return a.effects.Xrender(new ImageTex[] { a, b }, "plus"); }
         /// <summary>subtract images (pointwise)</summary>
@@ -141,8 +173,8 @@ namespace Images {
         /// <summary>Apply fixed 3x3 blur mask to an image</summary>
         public ImageTex Blur() { return effects.Xrender(this, "conv", new float[] { 12, 1,1,1, 1f/9, 1f/9, 1f/9, 1f/9, 1f/9, 1f/9, 1f/9, 1f/9, 1f/9 }); }
 
-        /// <summary>work out Gaussian filter TODO: private/static</summary>
-        float[] Gauss(double r) {
+        /// <summary>work out Gaussian filter</summary>
+        private static float[] Gauss(double r) {
             // e**-(r**2/c**2) = 0.05  => -r**2/c**2 = ln(0.05)  => c = r*sqrt(-ln(0.05))
             if (r < 0) r = 0;
             double c2 = r * r / -Math.Log(0.05);
