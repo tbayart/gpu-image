@@ -12,7 +12,11 @@ namespace Images {
         static void Main(string[] args) {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1(args));
+            try {
+                Application.Run(new Form1(args));
+            } catch (Exception e) {
+                MessageBox.Show("cannot run Image.exe. exception " + e);
+            }
         }
     }
 }
