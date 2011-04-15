@@ -357,10 +357,10 @@ namespace Images {
                     if (name == "vpr") {  // set explicit viewport and display this step in it
                         Viewport o = GraphicsDevice.Viewport;
                         xvp = new Viewport();
-                        xvp.X = (int)parms[1]*o.Width;
-                        xvp.Y = (int)parms[2]*o.Height;
-                        xvp.Width = (int)parms[3] * o.Width;// +xvp.X;
-                        xvp.Height = (int)parms[4] * o.Height;// +xvp.Y;
+                        xvp.X = (int)(parms[1]*o.Width);
+                        xvp.Y = (int)(parms[2]*o.Height);
+                        xvp.Width = (int)(parms[3] * o.Width);// +xvp.X;
+                        xvp.Height = (int)(parms[4] * o.Height);// +xvp.Y;
                         ShowImageNoClear(nimage, false);
                         autoshow = false;
                         continue;
