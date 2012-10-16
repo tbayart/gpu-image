@@ -9,6 +9,8 @@ with low update rates (every few seconds or lower).
 It should be very simple to deploy compared to a full database solution;
 but cannot provide all the functions of such a system.
 
+Most work is performed at the client, giving very fast filtering and flexible display.
+
 outline deployment
 ~~~~~~~~~~~~~~~~~~
 The following files are needed to make a complete minidb installation
